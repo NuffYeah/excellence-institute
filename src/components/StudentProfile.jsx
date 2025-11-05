@@ -55,7 +55,9 @@ const StudentProfile = () => {
 
   const generateReport = async (type) => {
     try {
-      const response = await fetch(`${API_BASE}/reports.php?type=${type}&student_id=${id}`)
+      const response = await fetch(`${API_BASE}/reports.php?type=${type}&student_id=${id}`, {
+        credentials: 'include'
+      })
       const data = await response.json()
       
       if (data.report) {

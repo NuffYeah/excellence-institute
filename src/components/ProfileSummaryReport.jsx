@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 
 function ProfileSummaryReport() {
   const { id } = useParams()
   const [student, setStudent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const { API_BASE } = useAuth()
 
   useEffect(() => {
     fetchStudentData()
@@ -14,7 +16,7 @@ function ProfileSummaryReport() {
   const fetchStudentData = async () => {
     try {
       console.log('Fetching student data for ID:', id)
-      const response = await fetch(`/api/student.php?id=${id}`)
+      const response = await fetch(`${API_BASE}/student.php?id=${id}`)
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -42,8 +44,47 @@ function ProfileSummaryReport() {
   }
 
   const handleDownloadPDF = () => {
-    // This would integrate with a PDF generation library
-    alert('PDF download functionality will be implemented')
+    const url = `${API_BASE}/report_view.php?type=profile&id=${id}&auto_print=1`
+    window.open(url, '_blank')
+  }
+
+  const generateProfileReportHTML = () => {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Profile Summary Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
+            .header { text-align: center; margin-bottom: 30px; }
+            .field { margin: 10px 0; }
+            .label { font-weight: 600; }
+            .print-btns { margin: 20px 0; }
+            .print-btns button { margin-right: 10px; padding: 8px 14px; }
+            @media print { .print-btns { display: none; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Excellence Institute</h1>
+            <h2>Student Profile Summary Report</h2>
+            <p>Generated: ${new Date().toLocaleString()}</p>
+          </div>
+          <div class="field"><span class="label">Full Name:</span> ${student.full_name}</div>
+          <div class="field"><span class="label">Student ID:</span> ${student.student_id}</div>
+          <div class="field"><span class="label">Email:</span> ${student.email}</div>
+          <div class="field"><span class="label">Date of Birth:</span> ${new Date(student.date_of_birth).toLocaleDateString()}</div>
+          <div class="field"><span class="label">Course:</span> ${student.course_of_study}</div>
+          <div class="field"><span class="label">Enrollment Date:</span> ${new Date(student.enrollment_date).toLocaleDateString()}</div>
+          <div class="field"><span class="label">Status:</span> Active</div>
+          <div class="print-btns">
+            <button onclick="window.print()">Print</button>
+            <button onclick="window.close()">Close</button>
+          </div>
+        </body>
+      </html>
+    `
   }
 
   if (loading) return <div className="loading">Loading student profile...</div>
@@ -58,6 +99,8 @@ function ProfileSummaryReport() {
           <button onClick={handlePrint} className="btn-print">Print Report</button>
           <button onClick={handleDownloadPDF} className="btn-download">Download PDF</button>
         </div>
+
+      <Link to={`/student/${id}/confirmation`} className="confirm-btn no-print">Registration Confirmation</Link>
       </div>
 
       <div className="report-content">
@@ -110,7 +153,7 @@ function ProfileSummaryReport() {
         </div>
 
         <div className="report-footer">
-          <p>This is an official document from Excellence Institute</p>
+          <p>This is an official document from The Excellence Institute</p>
           <p>Report ID: RPT-{student.student_id}-{Date.now()}</p>
         </div>
       </div>
@@ -259,6 +302,26 @@ function ProfileSummaryReport() {
           text-align: center;
           color: #666;
           font-size: 0.9rem;
+        }
+
+        .confirm-btn {
+          position: fixed;
+          bottom: 20px;
+          right: 20px;
+          background: #6a1b9a;
+          color: #fff;
+          padding: 10px 14px;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          font-size: 0.9rem;
+        }
+
+        .confirm-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
         .loading, .error {

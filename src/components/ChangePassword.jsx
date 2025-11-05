@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const ChangePassword = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { API_BASE } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -35,13 +37,12 @@ const ChangePassword = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch('/api/change_password.php', {
+      const response = await fetch(`${API_BASE}/change_password.php`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           current_password: formData.current_password,
           new_password: formData.new_password

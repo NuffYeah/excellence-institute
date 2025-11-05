@@ -62,7 +62,12 @@ switch ($method) {
         break;
         
     case 'PUT':
-        // Register admin (disable after first use)
+        // Register admin (disabled by default; set ADMIN_REGISTRATION_ENABLED=true to enable)
+        if (!defined('ADMIN_REGISTRATION_ENABLED') || ADMIN_REGISTRATION_ENABLED !== true) {
+            http_response_code(403);
+            echo json_encode(['error' => 'Admin registration is disabled']);
+            break;
+        }
         $input = json_decode(file_get_contents('php://input'), true);
         $username = trim($input['username'] ?? '');
         $email = trim($input['email'] ?? '');

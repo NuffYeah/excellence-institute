@@ -27,7 +27,9 @@ const Dashboard = () => {
       if (search) params.append('search', search)
       if (courseFilter) params.append('course', courseFilter)
       
-      const response = await fetch(`${API_BASE}/students.php?${params}`)
+      const response = await fetch(`${API_BASE}/students.php?${params}`, {
+        credentials: 'include'
+      })
       const data = await response.json()
       setStudents(data.students || [])
     } catch (error) {

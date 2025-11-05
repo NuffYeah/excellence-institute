@@ -10,6 +10,7 @@ import StudentProfile from './components/StudentProfile'
 // StudentRegister removed (public self-registration disabled)
 import StudentDashboard from './components/StudentDashboard'
 import ProfileSummaryReport from './components/ProfileSummaryReport'
+import RegistrationConfirmationSlip from './components/RegistrationConfirmationSlip'
 
 import ApiTest from './components/ApiTest'
 import Navigation from './components/Navigation'
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/register" element={isAuthenticated ? <StudentForm /> : <Navigate to="/admin" />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/student/:id" element={<ProfileSummaryReport />} />
+          <Route path="/student/:id/confirmation" element={<RegistrationConfirmationSlip />} />
           <Route path="/student/:id/profile" element={<StudentProfile />} />
           <Route path="/student/:id/edit" element={isAuthenticated ? <StudentForm /> : <Navigate to="/admin" />} />
 

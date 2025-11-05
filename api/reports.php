@@ -1,6 +1,9 @@
 <?php
 require_once 'config/config.php';
 require_once 'includes/database.php';
+require_once 'includes/auth_middleware.php';
+
+requireAuth();
 
 $type = $_GET['type'] ?? '';
 $student_id = $_GET['student_id'] ?? '';

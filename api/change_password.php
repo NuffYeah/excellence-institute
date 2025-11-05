@@ -11,13 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Verify admin is authenticated
-$admin = verifyAdminToken();
-if (!$admin) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
-}
+// Verify admin is authenticated (session-based)
+requireAuth();
+$adminId = $_SESSION['admin_id'];
 
 $input = json_decode(file_get_contents('php://input'), true);
 
@@ -30,7 +26,7 @@ if (!isset($input['current_password']) || !isset($input['new_password'])) {
 try {
     // Verify current password
     $stmt = $pdo->prepare("SELECT password FROM admin_users WHERE id = ?");
-    $stmt->execute([$admin['id']]);
+    $stmt->execute([$adminId]);
     $currentHash = $stmt->fetchColumn();
     
     if (!password_verify($input['current_password'], $currentHash)) {
@@ -42,7 +38,7 @@ try {
     // Update password
     $newHash = password_hash($input['new_password'], PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("UPDATE admin_users SET password = ? WHERE id = ?");
-    $stmt->execute([$newHash, $admin['id']]);
+    $stmt->execute([$newHash, $adminId]);
     
     echo json_encode(['success' => true, 'message' => 'Password updated successfully']);
     

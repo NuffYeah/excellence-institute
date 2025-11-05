@@ -78,7 +78,9 @@ switch ($method) {
             $student = $stmt->fetch();
             
             if ($student) {
-                file_put_contents('deleted_students.log', date('Y-m-d H:i:s') . " - Deleted: " . json_encode($student) . "\n", FILE_APPEND);
+                $logDir = dirname(DELETED_STUDENTS_LOG);
+                if (!is_dir($logDir)) { @mkdir($logDir, 0777, true); }
+                file_put_contents(DELETED_STUDENTS_LOG, date('Y-m-d H:i:s') . " - Deleted: " . json_encode($student) . "\n", FILE_APPEND);
                 
                 $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
                 $stmt->execute([$id]);

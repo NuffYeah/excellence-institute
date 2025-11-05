@@ -2,6 +2,9 @@
 require_once 'config/config.php';
 require_once 'includes/database.php';
 
+require_once 'includes/auth_middleware.php';
+requireAuth();
+
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
     echo json_encode(['error' => 'Method not allowed']);
