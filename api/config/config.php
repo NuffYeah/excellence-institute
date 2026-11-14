@@ -1,4 +1,54 @@
 <?php
+// Load environment variables from .env file if present
+if (!function_exists('loadEnvFile')) {
+    function loadEnvFile($filePath) {
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            return false;
+        }
+
+        $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return false;
+        }
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#') {
+                continue;
+            }
+
+            if (strpos($line, '=') !== false) {
+                list($name, $value) = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value);
+
+                $len = strlen($value);
+                if ($len >= 2 && (($value[0] === '"' && $value[$len - 1] === '"') || ($value[0] === "'" && $value[$len - 1] === "'"))) {
+                    $value = substr($value, 1, -1);
+                }
+
+                if (getenv($name) === false) {
+                    putenv("{$name}={$value}");
+                    $_ENV[$name] = $value;
+                    $_SERVER[$name] = $value;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+// Search for .env in project root first, then api directory
+$envPaths = [
+    dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '.env',
+    dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env',
+];
+foreach ($envPaths as $envPath) {
+    if (loadEnvFile($envPath)) {
+        break;
+    }
+}
+
 // Database configuration
 // Environment and database config (env-first, then defaults)
 if (!defined('APP_ENV')) {
@@ -7,8 +57,8 @@ if (!defined('APP_ENV')) {
 }
 define('DB_HOST', getenv('DB_HOST') !== false ? getenv('DB_HOST') : 'localhost');
 define('DB_NAME', getenv('DB_NAME') !== false ? getenv('DB_NAME') : 'excellence_institute');
-define('DB_USER', getenv('DB_USER') !== false ? getenv('DB_USER') : 'naph');
-define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'password');
+define('DB_USER', getenv('DB_USER') !== false ? getenv('DB_USER') : 'root');
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 
 // Application constants
 define('SITE_NAME', 'Excellence Institute');
@@ -76,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Session configuration for cross-origin requests
+
 $secureCookie = ($isHttps && $isProd) ? '1' : '0';
 $sameSite = 'Lax';
 ini_set('session.cookie_samesite', $sameSite);
